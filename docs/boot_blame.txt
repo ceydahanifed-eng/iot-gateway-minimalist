@@ -1,0 +1,20 @@
+902ms landscape-client.service
+376ms snapd.seeded.service
+284ms snapd.service
+256ms dev-sdd.device
+235ms wsl-pro.service
+115ms user@1000.service
+106ms systemd-resolved.service
+ 93ms rsyslog.service
+ 74ms systemd-udev-trigger.service
+ 53ms systemd-logind.service
+ 50ms systemd-udevd.service
+ 43ms dbus.service
+ 43ms keyboard-setup.service
+ 38ms nginx.service
+ 37ms systemd-timesyncd.service
+ 37ms systemd-journald.service
+ 36ms dev-hugepages.mount
+ 35ms e2scrub_reap.service
+ 34ms dev-mqueue.mount
+ 32ms sys-kernel-debug.mount

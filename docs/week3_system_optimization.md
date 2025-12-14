@@ -1,36 +1,28 @@
 # Hafta 3 – Sistem Optimizasyonu ve Log Yönetimi
 
-Bu haftada IoT gateway cihazlarının
-uzun süreli ve güvenli çalışması için
-sistem servisleri ve log yapısı
-optimize edilmiştir.
+Bu haftada IoT gateway cihazlarının uzun süreli ve güvenli çalışması için
+sistem servisleri ve log yapısı optimize edilmiştir.
+
+## Boot Analizi
+systemd-analyze blame çıktısı incelenmiş, açılışı yavaşlatan ve IoT
+senaryosu için zorunlu olmayan servisler tespit edilmiştir.
+Kanıt olarak boot_blame.txt dosyası eklenmiştir.
 
 ## Servis Maskeleme
-systemd-analyze blame çıktısı
-incelenmiş, açılışı yavaşlatan ve
-IoT senaryosu için gereksiz olan
-servisler tamamen maskelenmiştir.
-
-Maskelenen servisler:
-- man-db.service
-- apt-daily.service
-- apt-daily-upgrade.service
+Gereksiz servisler ve onları tetikleyen timer birimleri tamamen maskelenmiştir:
+- man-db.service / man-db.timer
+- apt-daily.service / apt-daily.timer
+- apt-daily-upgrade.service / apt-daily-upgrade.timer
 - cups.service
 
-Bu sayede boot süresi azaltılmıştır.
+Bu sayede servislerin yeniden tetiklenmesi engellenmiş,
+boot süresi ve arka plan yükü azaltılmıştır.
 
-## RAM Disk (tmpfs) Kullanımı
-SD kart / disk ömrünü korumak amacıyla
-/var/log dizini tmpfs üzerine taşınmıştır.
+## RAM Disk (tmpfs)
+Disk/SD kart ömrünü korumak amacıyla log dizini tmpfs (RAM disk) üzerine taşınmıştır.
+Çalışma sırasında loglar RAM üzerinde tutulmakta,
+disk yazımı minimize edilmektedir.
 
-Loglar çalışma sırasında RAM üzerinde
-tutulmakta, disk yazımı minimize edilmektedir.
-
-## Günlük ve Hata Analizi
-journalctl kullanılarak sistem ve
-Docker servis logları incelenmiş,
-kritik hata bulunmadığı görülmüştür.
-
-Bu yaklaşım, IoT cihazlarında
-kararlı ve sürdürülebilir bir
-çalışma ortamı sağlar.
+## Günlük ve Hata Analizi (RCA)
+journalctl ile sistem ve Docker servis logları incelenmiş,
+kritik hata (err..alert) bulunmadığı görülmüştür.
