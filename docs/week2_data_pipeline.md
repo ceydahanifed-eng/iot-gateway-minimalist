@@ -12,3 +12,15 @@ Linux komut satırı araçları kullanılarak temizlenmiştir.
 ## Pipeline Akışı
 ```bash
 sed → grep → awk → clean CSV
+## Süreç ve Kaynak Kullanımı
+
+Veri işleme betiği çalıştırılırken
+`time` komutu ile işlem süresi ölçülmüştür.
+
+Ayrıca `ps` komutu ile süreç gözlemlenmiş,
+RSS bellek kullanımının birkaç MB seviyesinde
+olduğu görülmüştür.
+
+Bu durum, betiğin IoT gateway cihazlarında
+düşük kaynak tüketimi ile çalışabileceğini
+göstermektedir.
