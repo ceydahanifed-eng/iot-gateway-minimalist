@@ -1,36 +1,31 @@
 #!/bin/bash
-# Hafta 2–3 uyumlu: strict mode, zaman, RSS, RAM disk log
+# Week 2 – Text processing & regex based data sanitization
 
 set -euo pipefail
 
 RAW_DATA="data/raw/sensor_data.csv"
 CLEAN_DATA="data/clean/sensor_data_clean.csv"
 
-# RAM disk log dizini
-LOG_DIR="/var/log/iot-gateway"
-LOG_FILE="$LOG_DIR/process.log"
+echo "device_id,timestamp,temperature_c,humidity_percent,status" > "$CLEAN_DATA"
 
-mkdir -p "$LOG_DIR"
-exec >> "$LOG_FILE" 2>&1
+sed 's/;/,/g' "$RAW_DATA" \
+| grep -Ev '^(#|\*\*\*)' \
+| grep -E '^"?IOT-GWAY-[0-9]+' \
+| grep -E '^[^,]+,[^,]+,[^,]+,[^,]+,[^,]+' \
+| awk -F',' 'BEGIN{OFS=","}
+{
+  gsub(/"/, "", $0)
+  gsub(/^[ \t]+|[ \t]+$/, "", $0)
 
-echo "=== Telemetry processing started at $(date) ==="
+  temp = $3 + 0
+  hum  = $4 + 0
+  dev  = $1
 
-# === Süre ölçümü ===
-time (
-  sed 's/;/,/g' "$RAW_DATA" \
-  | grep -E '^[^,]+,[^,]+,[^,]+,[^,]+$' \
-  | awk -F',' 'BEGIN{OFS=","}
-    NR==1 {print; next}
-    {
-      t=$3+0; h=$4+0;
-      if (t < 0 || t > 100) next;
-      if (h < 0 || h > 100) next;
-      print
-    }' > "$CLEAN_DATA"
-)
+  if (dev !~ /^IOT-GWAY-[0-9]+$/) next
+  if (temp < 0 || temp > 100) next
+  if (hum < 0 || hum > 100) next
 
-# === RSS bellek ölçümü ===
-echo "=== Resource usage (RSS in KB) ==="
-ps -o pid,rss,cmd -p $$
+  print $1,$2,temp,hum,$5
+}' >> "$CLEAN_DATA"
 
-echo "=== Telemetry processing finished at $(date) ==="
+echo "[INFO] Week 2 data sanitization completed."
