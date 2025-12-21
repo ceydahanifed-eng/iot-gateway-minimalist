@@ -1,27 +1,24 @@
 #!/bin/bash
-# Week 4 – Maintenance & Disk Safety Script
+# Week 4 – Maintenance & disk safety
 
 set -euo pipefail
 
 LOG_DIR="/var/log/iot-gateway"
-DATA_DIR="data/clean"
+DATA_DIR="/home/ceydahanifed/iot-gateway-minimalist/data/clean"
 DISK_LIMIT=85
 
-echo "[INFO] Maintenance started at $(date)"
+log() {
+  echo "[$(date '+%F %T')] $1" >> "$LOG_DIR/maintenance.log"
+}
 
-# Disk usage check
-USAGE=$(df / | awk 'NR==2 {gsub("%",""); print $5}')
+# === DISK CHECK ===
+DISK_USAGE=$(df / | awk 'NR==2 {gsub("%",""); print $5}')
 
-if [ "$USAGE" -ge "$DISK_LIMIT" ]; then
-  echo "[WARN] Disk usage ${USAGE}% >= ${DISK_LIMIT}%"
-  echo "[WARN] Emergency mode enabled"
+if [ "$DISK_USAGE" -ge "$DISK_LIMIT" ]; then
+  log "[EMERGENCY] Disk usage ${DISK_USAGE}% - entering emergency mode"
 
-  # Keep only error logs
-  find "$LOG_DIR" -type f ! -name "*error*" -delete
-  exit 0
+  find "$DATA_DIR" -type f -mtime +7 -delete
+  log "[ACTION] Old data files deleted"
+else
+  log "[OK] Disk usage normal: ${DISK_USAGE}%"
 fi
-
-# Cleanup old data (older than 7 days)
-find "$DATA_DIR" -type f -mtime +7 -print -delete
-
-echo "[INFO] Maintenance completed successfully"
